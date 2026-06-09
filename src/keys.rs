@@ -40,7 +40,12 @@ pub fn handle(key: KeyEvent, app: &App) -> Option<Action> {
         }
     }
     match key.code {
-        KeyCode::Char('q') | KeyCode::Esc => Some(Action::Quit),
+        // 2026-06-08 sibling-sweep fix: Esc no longer quits the TUI.
+        // Quitting via Esc is a footgun (every overlay uses Esc to
+        // cancel — muscle memory propagates to the normal map and the
+        // user closes the whole app). Keep `q` and `Ctrl+C` for quit;
+        // Esc reserved for overlay-cancel only.
+        KeyCode::Char('q') => Some(Action::Quit),
         KeyCode::Char('c') if m.contains(KeyModifiers::CONTROL) => Some(Action::Quit),
         KeyCode::Up | KeyCode::Char('k') => Some(Action::Up),
         KeyCode::Down | KeyCode::Char('j') => Some(Action::Down),
