@@ -84,14 +84,11 @@ fn main() -> Result<()> {
 }
 
 fn mask_env(name: &str) -> String {
+    // 2026-06-08 sibling-sweep fix: dropped the `ends …XXXX` tail
+    // (leaked ~20% of the entropy of short keys) and the latent
+    // multi-byte slice panic on `&v[v.len()-4..]`. Just report length.
     match std::env::var(name) {
-        Ok(v) if !v.is_empty() => {
-            if v.len() > 6 {
-                format!("set ({} chars, ends …{})", v.len(), &v[v.len() - 4..])
-            } else {
-                format!("set ({} chars)", v.len())
-            }
-        }
+        Ok(v) if !v.is_empty() => format!("set ({} chars)", v.len()),
         _ => "(unset)".into(),
     }
 }
